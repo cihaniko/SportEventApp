@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SportsEventApp.Silo": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

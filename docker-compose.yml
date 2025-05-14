@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
+    environment:
+      SA_PASSWORD: "YourStrongPassword1!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - orleans-net
+    volumes:
+      - mssql-data:/var/opt/mssql
+    restart: always
+
+  silo:
+    build:
+      context: .
+      dockerfile: SportsEventApp.Silo/Dockerfile
+    container_name: orleans-silo
+    ports:
+      - "11111:11111"     # Orleans Silo port
+      - "30000:30000"     # Orleans Gateway port
+    depends_on:
+      - db
+    networks:
+      - orleans-net
+    env_file:
+      - .env
+    restart: always
+
+  api:
+    build:
+      context: .
+      dockerfile: SportEventApp/Dockerfile
+    container_name: sports-api
+    ports:
+      - "5000:80"
+    depends_on:
+      - silo
+    networks:
+      - orleans-net
+    env_file:
+      - .env
+    restart: always
+
+volumes:
+  mssql-data:
+
+networks:
+  orleans-net:
